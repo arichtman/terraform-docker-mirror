@@ -16,13 +16,14 @@
 terraform {
   required_providers {
     docker = {
-      source = "kreuzwerker/docker"
+      source           = "kreuzwerker/docker"
+      required_version = ">= 3.0.0"
     }
     null = {
       source = "hashicorp/null"
     }
   }
-  required_version = ">= 0.13"
+  required_version = ">= 1.5"
 }
 
 
