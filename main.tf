@@ -16,8 +16,7 @@
 terraform {
   required_providers {
     docker = {
-      source           = "kreuzwerker/docker"
-      required_version = ">= 3.0.0"
+      source = "kreuzwerker/docker"
     }
     null = {
       source = "hashicorp/null"
@@ -138,17 +137,17 @@ data "docker_registry_image" "source" {
   name = local.source_full
 }
 
-resource "null_resource" "remove-local-tag" {
-  triggers = {
-    source_sha = data.docker_registry_image.source.sha256_digest
-  }
-  provisioner "local-exec" {
-    on_failure = continue
-    command    = <<END_OF_COMMAND
-if [ -n "${var.no_rmi ? "" : "rmi"}" ] ; then docker rmi --no-prune ${data.docker_registry_image.source.name} ; fi
-END_OF_COMMAND
-  }
-}
+# resource "null_resource" "remove-local-tag" {
+#   triggers = {
+#     source_sha = data.docker_registry_image.source.sha256_digest
+#   }
+#   provisioner "local-exec" {
+#     on_failure = continue
+#     command    = <<END_OF_COMMAND
+# if [ -n "${var.no_rmi ? "" : "rmi"}" ] ; then docker rmi --no-prune ${data.docker_registry_image.source.name} ; fi
+# END_OF_COMMAND
+#   }
+# }
 
 
 resource "docker_image" "image" {
@@ -156,14 +155,14 @@ resource "docker_image" "image" {
   keep_locally  = var.keep_locally
   pull_triggers = [data.docker_registry_image.source.sha256_digest]
 
-  depends_on = [
-    null_resource.remove-local-tag,
-  ]
+  #   depends_on = [
+  #     null_resource.remove-local-tag,
+  #   ]
 
-  provisioner "local-exec" {
-    command = <<END_OF_COMMAND
-docker tag ${replace(self.latest, "sha256:", "")} ${local.dest_full} && \
-docker push ${local.dest_full}
-END_OF_COMMAND
-  }
+  #   provisioner "local-exec" {
+  #     command = <<END_OF_COMMAND
+  # docker tag ${replace(self.latest, "sha256:", "")} ${local.dest_full} && \
+  # docker push ${local.dest_full}
+  # END_OF_COMMAND
+  #   }
 }
